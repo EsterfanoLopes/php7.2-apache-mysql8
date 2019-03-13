@@ -1,0 +1,33 @@
+version: '3'
+services:
+    apache:
+        build: .docker/apache
+        container_name: app_apache
+        ports:
+            - 80:80
+        volumes:
+            - .docker/config/vhosts:/etc/apache2/sites-enabled
+            - .:/home/wwwroot
+        depends_on:
+            - php
+    mysql:
+        env_file: .env
+        image: mysql:8
+        container_name: app_mysql
+        working_dir: /application
+        volumes:
+            - .docker/data/:/var/lib/mysql
+        environment:
+            - MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+            - MYSQL_DATABASE=${MYSQL_DATABASE}
+            - MYSQL_USER=${MYSQL_USER}
+            - MYSQL_PASSWORD=${MYSQL_PASSWORD}
+        ports:
+        - 3306:3306
+    php:
+        build: .docker/php
+        container_name: app_php
+        volumes:
+            - .:/home/wwwroot
+        depends_on:
+            - mysql
